@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_tags %}
+
+{% block title %}ShopNest Pro — Curated Premium Marketplace{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="hero-badge">
+                    <i class="bi bi-stars"></i>Next-Gen Shopping Experience 2026
+                </span>
+                <h1 class="hero-title">
+                    Discover Curated<br>
+                    <span class="text-gradient">Premium Lifestyle</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Explore 60+ hand-picked products across 12 signature categories. From high-end audio and next-gen gaming to designer fashion and gourmet delights.
+                </p>
+                <div class="d-flex gap-3 flex-wrap align-items-center">
+                    <a href="#productsCatalog" class="btn btn-accent btn-lg px-4">
+                        <i class="bi bi-bag-check me-1"></i>Explore Catalog
+                    </a>
+                    <a href="#categoriesGrid" class="btn btn-glass btn-lg px-4">
+                        <i class="bi bi-grid me-1"></i>Browse Categories
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <strong>{{ total_catalog_count }}+</strong>
+                        <span>Curated Items</span>
+                    </div>
+                    <div class="hero-stat">
+                        <strong>12</strong>
+                        <span>Categories</span>
+                    </div>
+                    <div class="hero-stat">
+                        <strong>4.9★</strong>
+                        <span>Satisfaction</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero-visual-card">
+                    <span class="hero-floating-tag tag-1"><i class="bi bi-shield-fill-check me-1"></i>100% Genuine</span>
+                    <i class="bi bi-bag-check-fill hero-visual-icon"></i>
+                    <span class="hero-floating-tag tag-2"><i class="bi bi-lightning-charge-fill me-1"></i>Express Shipping</span>
+                    <div class="text-center mt-3">
+                        <h4 class="fw-bold mb-1">ShopNest Signature</h4>
+                        <p class="text-muted small mb-0">Engineered for seamless digital shopping</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Value Propositions Bar -->
+<section class="trust-bar">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="bi bi-truck"></i></div>
+                    <div>
+                        <h6 class="trust-title">Free Express Shipping</h6>
+                        <p class="trust-desc">On all orders above ₹999</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="bi bi-shield-check"></i></div>
+                    <div>
+                        <h6 class="trust-title">Secure Payments</h6>
+                        <p class="trust-desc">256-bit encrypted checkout</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="bi bi-arrow-repeat"></i></div>
+                    <div>
+                        <h6 class="trust-title">7-Day Easy Returns</h6>
+                        <p class="trust-desc">No questions asked policy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="bi bi-headset"></i></div>
+                    <div>
+                        <h6 class="trust-title">24/7 Priority Support</h6>
+                        <p class="trust-desc">Dedicated concierge team</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Explorer Grid (12 Categories) -->
+<section class="categories-section" id="categoriesGrid">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title"><i class="bi bi-grid-3x3-gap-fill text-warning"></i>Explore by Category</h2>
+                <p class="text-muted small mb-0">Browse our 12 premium product collections</p>
+            </div>
+            {% if current_category %}
+                <a href="{% url 'products:home' %}#categoriesGrid" class="btn btn-sm btn-outline-custom">
+                    <i class="bi bi-x-circle me-1"></i>Reset Category
+                </a>
+            {% endif %}
+        </div>
+        <div class="row g-3">
+            {% for cat_code, cat_name in categories %}
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                <a href="{% url 'products:home' %}?category={{ cat_code }}#productsCatalog"
+                   class="category-card {% if current_category == cat_code %}active{% endif %}">
+                    <div class="category-icon-wrapper">
+                        {% if cat_code == 'electronics' %}<i class="bi bi-cpu"></i>
+                        {% elif cat_code == 'gaming' %}<i class="bi bi-controller"></i>
+                        {% elif cat_code == 'fashion' %}<i class="bi bi-handbag"></i>
+                        {% elif cat_code == 'home' %}<i class="bi bi-house-door"></i>
+                        {% elif cat_code == 'sports' %}<i class="bi bi-trophy"></i>
+                        {% elif cat_code == 'books' %}<i class="bi bi-book"></i>
+                        {% elif cat_code == 'accessories' %}<i class="bi bi-smartwatch"></i>
+                        {% elif cat_code == 'beauty' %}<i class="bi bi-stars"></i>
+                        {% elif cat_code == 'toys' %}<i class="bi bi-puzzle"></i>
+                        {% elif cat_code == 'automotive' %}<i class="bi bi-tools"></i>
+                        {% elif cat_code == 'grocery' %}<i class="bi bi-cup-hot"></i>
+                        {% elif cat_code == 'stationery' %}<i class="bi bi-pen"></i>
+                        {% else %}<i class="bi bi-box"></i>{% endif %}
+                    </div>
+                    <span class="category-name">{{ cat_name }}</span>
+                    {% if category_counts %}
+                        <span class="category-count">
+                            {% for c_code, c_count in category_counts.items %}
+                                {% if c_code == cat_code %}{{ c_count }} items{% endif %}
+                            {% endfor %}
+                        </span>
+                    {% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Trending Flash Deals Section -->
+{% if flash_deals and not current_category and not min_price and not max_price %}
+<section class="deals-section">
+    <div class="container">
+        <div class="deals-banner">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                        <i class="bi bi-fire text-danger fs-3"></i>Trending Deals of the Day
+                    </h3>
+                    <p class="text-muted small mb-0">Limited-time price drops with up to 35% discount &amp; instant savings</p>
+                </div>
+                <span class="badge bg-danger px-3 py-2 rounded-pill fw-bold">
+                    <i class="bi bi-stopwatch me-1"></i>Special Limited Pricing
+                </span>
+            </div>
+            <div class="row g-4">
+                {% for product in flash_deals %}
+                <div class="col-sm-6 col-md-4 col-lg-4">
+                    {% include 'products/_product_card.html' with product=product %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+<!-- All Products Catalog Section with Filter & Sort Toolbar -->
+<section class="page-section pt-4" id="productsCatalog">
+    <div class="container">
+        <!-- Filter & Sort Toolbar -->
+        <div class="filter-toolbar">
+            <div>
+                <h3 class="fw-bold mb-0">
+                    {% if current_category %}
+                        {{ current_category|title }} Collection
+                    {% else %}
+                        All Products
+                    {% endif %}
+                </h3>
+                <small class="text-muted">{{ products.paginator.count }} item{{ products.paginator.count|pluralize }} available</small>
+            </div>
+
+            <!-- Sort Controls -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <label for="sortSelect" class="small fw-semibold text-muted mb-0">Sort By:</label>
+                <select class="form-select sort-select" id="sortSelect" style="width: auto;">
+                    <option value="featured" {% if current_sort == 'featured' %}selected{% endif %}>✨ Featured</option>
+                    <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>💰 Price: Low to High</option>
+                    <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>💎 Price: High to Low</option>
+                    <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>⭐ Customer Rating</option>
+                    <option value="discount" {% if current_sort == 'discount' %}selected{% endif %}>🏷️ Highest Discount</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>🆕 Newest First</option>
+                </select>
+
+                {% if current_category or min_price or max_price or in_stock_only %}
+                    <a href="{% url 'products:home' %}#productsCatalog" class="btn btn-sm btn-outline-custom ms-1">
+                        <i class="bi bi-x-lg me-1"></i>Clear Filters
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Cards Grid -->
+        {% if products %}
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                {% include 'products/_product_card.html' with product=product %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Glass Pagination -->
+        {% if products.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?{% if current_category %}category={{ current_category }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ products.previous_page_number }}#productsCatalog"
+                       aria-label="Previous">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in products.paginator.page_range %}
+                <li class="page-item {% if products.number == num %}active{% endif %}">
+                    <a class="page-link"
+                       href="?{% if current_category %}category={{ current_category }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ num }}#productsCatalog">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?{% if current_category %}category={{ current_category }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ products.next_page_number }}#productsCatalog"
+                       aria-label="Next">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-glass-card">
+            <i class="bi bi-box-seam empty-icon"></i>
+            <h3 class="fw-bold">No Products Found</h3>
+            <p class="text-muted">We couldn't find any products matching your filter criteria.</p>
+            <a href="{% url 'products:home' %}" class="btn btn-accent mt-2">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All Filters
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

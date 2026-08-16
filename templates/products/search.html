@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+
+{% block title %}Search results for "{{ query }}" — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <!-- Search Header -->
+        <div class="section-header flex-wrap gap-2 mb-4">
+            <div>
+                <h1 class="page-title mb-1">
+                    {% if query %}
+                        Results for "<span class="text-gradient">{{ query }}</span>"
+                    {% else %}
+                        Search Catalog
+                    {% endif %}
+                </h1>
+                {% if products %}
+                    <p class="text-muted small mb-0">Found {{ products.paginator.count }} item{{ products.paginator.count|pluralize }} matching your query</p>
+                {% endif %}
+            </div>
+
+            <!-- Sort Controls -->
+            {% if products %}
+            <div class="d-flex align-items-center gap-2">
+                <label for="sortSelect" class="small fw-semibold text-muted mb-0">Sort By:</label>
+                <select class="form-select sort-select" id="sortSelect" style="width: auto;">
+                    <option value="relevance" {% if current_sort == 'relevance' %}selected{% endif %}>🎯 Relevance</option>
+                    <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>💰 Price: Low to High</option>
+                    <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>💎 Price: High to Low</option>
+                    <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>⭐ Rating</option>
+                    <option value="discount" {% if current_sort == 'discount' %}selected{% endif %}>🏷️ Discount</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>🆕 Newest</option>
+                </select>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if products %}
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                {% include 'products/_product_card.html' with product=product %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Glass Pagination -->
+        {% if products.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&sort={{ current_sort }}&page={{ products.previous_page_number }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in products.paginator.page_range %}
+                <li class="page-item {% if products.number == num %}active{% endif %}">
+                    <a class="page-link" href="?q={{ query }}&sort={{ current_sort }}&page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&sort={{ current_sort }}&page={{ products.next_page_number }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-glass-card">
+            <i class="bi bi-search empty-icon"></i>
+            <h3 class="fw-bold">No Products Found for "{{ query }}"</h3>
+            <p class="text-muted">Try checking your spelling, using more general keywords, or browsing our popular categories.</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+                <a href="{% url 'products:home' %}?category=electronics" class="btn btn-outline-custom btn-sm">Electronics</a>
+                <a href="{% url 'products:home' %}?category=gaming" class="btn btn-outline-custom btn-sm">Gaming</a>
+                <a href="{% url 'products:home' %}?category=fashion" class="btn btn-outline-custom btn-sm">Fashion</a>
+                <a href="{% url 'products:home' %}?category=home" class="btn btn-outline-custom btn-sm">Home</a>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'products:home' %}" class="btn btn-accent px-4">Browse All Products</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

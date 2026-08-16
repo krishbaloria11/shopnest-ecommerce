@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+
+{% block title %}{{ product.name }} — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <!-- Glass Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb glass-panel py-2 px-3 mb-0" style="border-radius: 12px; font-size: 0.88rem;">
+                <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'products:home' %}?category={{ product.category }}">{{ product.get_category_display }}</a></li>
+                <li class="breadcrumb-item active text-truncate" style="max-width: 320px;">{{ product.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Left: Product Image Showcase -->
+            <div class="col-lg-6">
+                <div class="detail-img-frame">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="detail-main-img">
+                    {% else %}
+                        <div class="detail-placeholder-frame">
+                            {% if product.category == 'electronics' %}<i class="bi bi-laptop"></i>
+                            {% elif product.category == 'gaming' %}<i class="bi bi-controller"></i>
+                            {% elif product.category == 'fashion' %}<i class="bi bi-handbag"></i>
+                            {% elif product.category == 'home' %}<i class="bi bi-house-door"></i>
+                            {% elif product.category == 'sports' %}<i class="bi bi-trophy"></i>
+                            {% elif product.category == 'books' %}<i class="bi bi-book"></i>
+                            {% elif product.category == 'beauty' %}<i class="bi bi-magic"></i>
+                            {% elif product.category == 'toys' %}<i class="bi bi-puzzle"></i>
+                            {% elif product.category == 'automotive' %}<i class="bi bi-tools"></i>
+                            {% elif product.category == 'grocery' %}<i class="bi bi-cup-hot"></i>
+                            {% elif product.category == 'stationery' %}<i class="bi bi-pen"></i>
+                            {% else %}<i class="bi bi-box-seam"></i>{% endif %}
+                            <p class="fs-6 mt-3 text-muted">ShopNest Signature Verified Item</p>
+                        </div>
+                    {% endif %}
+
+                    {% if product.discount_percent > 0 %}
+                        <span class="product-badge-discount" style="font-size: 0.9rem; padding: 0.35rem 0.85rem; top: 18px; left: 18px;">
+                            <i class="bi bi-tag-fill me-1"></i>{{ product.discount_percent }}% SPECIAL DISCOUNT
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right: Product Information & Purchase -->
+            <div class="col-lg-6">
+                <div class="glass-panel p-4 p-md-5">
+                    <!-- Brand & Category -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="detail-brand-badge">
+                            <i class="bi bi-patch-check-fill me-1"></i>{{ product.brand|default:product.get_category_display }}
+                        </span>
+                        <span class="badge bg-secondary opacity-75">{{ product.get_category_display }}</span>
+                    </div>
+
+                    <!-- Heading -->
+                    <h1 class="detail-heading">{{ product.name }}</h1>
+
+                    <!-- Star Rating & Reviews -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="text-warning fs-5">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= product.rating %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star opacity-50"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="fw-bold">{{ product.rating }} / 5.0</span>
+                        <span class="text-muted small">• Verified Buyer Rating</span>
+                    </div>
+
+                    <!-- Price Block with Transparent Discount Breakdown -->
+                    <div class="detail-price-box">
+                        {% if product.discount_percent > 0 %}
+                            <div>
+                                <div class="d-flex align-items-baseline gap-3">
+                                    <div class="detail-price-main">{% format_price product.discounted_price %}</div>
+                                    <div class="text-muted text-decoration-line-through fs-5">{% format_price product.price %}</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <span class="badge bg-danger px-3 py-1 fw-bold">-{{ product.discount_percent }}% OFF</span>
+                                    <span class="text-success fw-bold"><i class="bi bi-tag-fill me-1"></i>You save {% format_price product.discount_amount %}</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="detail-price-main">{% format_price product.price %}</div>
+                        {% endif %}
+                    </div>
+
+
+                    <!-- Stock Status Indicator -->
+                    <div class="mb-4">
+                        {% if product.stock > 10 %}
+                            <span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>In Stock (Ready to Ship)</span>
+                        {% elif product.stock > 0 %}
+                            <span class="text-warning fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i>Hurry, only {{ product.stock }} left in stock!</span>
+                        {% else %}
+                            <span class="text-danger fw-bold"><i class="bi bi-slash-circle-fill me-1"></i>Currently Out of Stock</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-primary mb-2">Product Description</h6>
+                        <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.7;">
+                            {{ product.description }}
+                        </p>
+                    </div>
+
+                    <!-- Actions Form -->
+                    <form method="POST" action="{% url 'cart:add_to_cart' product.pk %}" class="add-to-cart-form mb-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'products:product_detail' product.pk %}">
+                        <div class="d-flex gap-3 flex-wrap">
+                            <button type="submit" class="btn btn-accent btn-lg px-5 add-cart-btn flex-grow-1" {% if not product.in_stock %}disabled{% endif %}>
+                                <i class="bi bi-cart-plus-fill me-2"></i>
+                                {% if product.in_stock %}Add to Shopping Cart{% else %}Out of Stock{% endif %}
+                            </button>
+
+                            {% if user.is_authenticated %}
+                                <button type="button"
+                                        class="btn btn-glass btn-lg wishlist-toggle-btn {% if is_wishlisted %}active{% endif %}"
+                                        data-url="{% url 'products:toggle_wishlist' product.pk %}"
+                                        title="Save to Wishlist">
+                                    <i class="bi {% if is_wishlisted %}bi-heart-fill text-danger{% else %}bi-heart{% endif %} me-1"></i>Wishlist
+                                </button>
+                            {% else %}
+                                <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-glass btn-lg" title="Login to save">
+                                    <i class="bi bi-heart me-1"></i>Wishlist
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+
+                    <!-- Trust Pillars -->
+                    <div class="row g-2 pt-3 border-top" style="border-color: var(--glass-border) !important;">
+                        <div class="col-sm-4">
+                            <div class="feature-pill">
+                                <i class="bi bi-lightning-charge"></i>
+                                <span class="small fw-semibold">Fast Express Delivery</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="feature-pill">
+                                <i class="bi bi-shield-check"></i>
+                                <span class="small fw-semibold">100% Authentic</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="feature-pill">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                <span class="small fw-semibold">7 Days Return</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products Section -->
+        {% if related_products %}
+        <div class="mt-5 pt-4">
+            <div class="section-header">
+                <div>
+                    <h3 class="fw-bold mb-1"><i class="bi bi-collection me-2 text-warning"></i>Related in {{ product.get_category_display }}</h3>
+                    <p class="text-muted small mb-0">Customers who viewed this item also looked at</p>
+                </div>
+                <a href="{% url 'products:home' %}?category={{ product.category }}" class="btn btn-sm btn-outline-custom">
+                    View Category <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="row g-4">
+                {% for related in related_products %}
+                <div class="col-sm-6 col-lg-3">
+                    {% include 'products/_product_card.html' with product=related %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

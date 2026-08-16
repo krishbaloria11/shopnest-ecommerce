@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+
+{% block title %}Order Confirmed #{{ order.pk }} — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="glass-panel text-center p-4 p-md-5">
+                    <!-- Success Checkmark Icon -->
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 84px; height: 84px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--status-delivered); color: var(--status-delivered); font-size: 3rem; box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+
+                    <h1 class="fw-bold mb-2">Order Confirmed!</h1>
+                    <p class="text-secondary mb-4">Thank you for your order, <strong class="text-primary">{{ order.full_name }}</strong>. We've received your request and our logistics team is preparing your package.</p>
+
+                    <!-- Receipt Summary Glass Card -->
+                    <div class="glass-panel p-4 mb-4 text-start" style="background: var(--glass-input);">
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: var(--glass-border) !important;">
+                            <span class="text-muted">Order ID:</span>
+                            <strong class="text-primary fs-6">#{{ order.pk }}</strong>
+                        </div>
+                        {% if order.transaction_id %}
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: var(--glass-border) !important;">
+                            <span class="text-muted">Transaction Ref:</span>
+                            <span class="text-primary font-monospace small">{{ order.transaction_id }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: var(--glass-border) !important;">
+                            <span class="text-muted">Order Status:</span>
+                            <span class="status-pill {{ order.status }}">{{ order.get_status_display }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: var(--glass-border) !important;">
+                            <span class="text-muted">Total Items:</span>
+                            <strong class="text-primary">{{ order.item_count }} item{{ order.item_count|pluralize }}</strong>
+                        </div>
+                        {% if order.discount_savings > 0 %}
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: var(--glass-border) !important;">
+                            <span class="text-muted">You Saved:</span>
+                            <strong class="text-success">{% format_price order.discount_savings %}</strong>
+                        </div>
+                        {% endif %}
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: var(--glass-border) !important;">
+                            <span class="text-muted">Total Amount Paid:</span>
+                            <strong class="text-accent fs-5">{% format_price order.total_amount %}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2">
+                            <span class="text-muted">Shipping Destination:</span>
+                            <span class="text-primary text-end small">{{ order.city }}, {{ order.state }} ({{ order.zip_code }})</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="{% url 'orders:detail' order.pk %}" class="btn btn-accent px-4">
+                            <i class="bi bi-receipt me-1"></i>Track & View Details
+                        </a>
+                        <a href="{% url 'products:home' %}" class="btn btn-outline-custom px-4">
+                            <i class="bi bi-bag me-1"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

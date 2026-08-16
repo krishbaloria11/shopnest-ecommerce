@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+
+{% block title %}Shopping Cart ({{ cart_count }}) — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <!-- Page Title -->
+        <div class="section-header mb-4">
+            <div>
+                <h1 class="page-title mb-1">
+                    <i class="bi bi-cart3 text-warning me-2"></i>Shopping Cart
+                </h1>
+                <p class="text-muted small mb-0">Review your selected items, apply savings, and proceed to checkout.</p>
+            </div>
+            {% if cart_items %}
+                <a href="{% url 'products:home' %}" class="btn btn-outline-custom">
+                    <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+                </a>
+            {% endif %}
+        </div>
+
+        {% if cart_items %}
+        <div class="row g-4">
+            <!-- Left: Cart Items List -->
+            <div class="col-lg-8">
+                <!-- Total Savings Callout -->
+                {% if cart_savings > 0 %}
+                <div class="savings-callout">
+                    <i class="bi bi-patch-check-fill"></i>
+                    <div>
+                        <strong>Great Savings!</strong> You are saving <strong>{% format_price cart_savings %}</strong> on this order.
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="d-flex flex-column gap-3">
+                    {% for item in cart_items %}
+                    <div class="cart-item-card">
+                        <!-- Product Thumbnail -->
+                        <div class="cart-thumb">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <div class="text-muted fs-3">
+                                    {% if item.product.category == 'electronics' %}<i class="bi bi-laptop"></i>
+                                    {% elif item.product.category == 'gaming' %}<i class="bi bi-controller"></i>
+                                    {% elif item.product.category == 'fashion' %}<i class="bi bi-handbag"></i>
+                                    {% elif item.product.category == 'home' %}<i class="bi bi-house-door"></i>
+                                    {% elif item.product.category == 'sports' %}<i class="bi bi-trophy"></i>
+                                    {% elif item.product.category == 'books' %}<i class="bi bi-book"></i>
+                                    {% else %}<i class="bi bi-box-seam"></i>{% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Item Details & Pricing Breakdown -->
+                        <div class="flex-grow-1">
+                            <span class="badge bg-secondary opacity-75 mb-1" style="font-size: 0.7rem;">{{ item.product.get_category_display }}</span>
+                            <h5 class="fw-bold mb-1 fs-6">
+                                <a href="{% url 'products:product_detail' item.product.pk %}" class="text-reset">
+                                    {{ item.product.name }}
+                                </a>
+                            </h5>
+                            
+                            <div class="d-flex align-items-center gap-2 flex-wrap small mt-1">
+                                {% if item.product.discount_percent > 0 %}
+                                    <span class="fw-bold text-accent">{% format_price item.product.discounted_price %}</span>
+                                    <span class="text-muted text-decoration-line-through">{% format_price item.product.price %}</span>
+                                    <span class="badge bg-danger" style="font-size: 0.68rem;">-{{ item.product.discount_percent }}% OFF</span>
+                                {% else %}
+                                    <span class="fw-bold text-accent">{% format_price item.product.price %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Stepper Quantity Controls -->
+                        <div class="qty-stepper">
+                            <a href="{% url 'cart:decrease_quantity' item.pk %}" class="qty-step-btn" title="Decrease quantity" aria-label="Decrease quantity">
+                                <i class="bi bi-dash"></i>
+                            </a>
+                            <span class="qty-num">{{ item.quantity }}</span>
+                            <a href="{% url 'cart:increase_quantity' item.pk %}" class="qty-step-btn" title="Increase quantity" aria-label="Increase quantity">
+                                <i class="bi bi-plus"></i>
+                            </a>
+                        </div>
+
+                        <!-- Item Subtotal -->
+                        <div class="text-end" style="min-width: 110px;">
+                            <div class="fw-bold fs-5 text-accent">
+                                {% format_price item.subtotal %}
+                            </div>
+                            {% if item.discount_savings > 0 %}
+                                <small class="text-success fw-bold d-block">Saved {% format_price item.discount_savings %}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Remove Action -->
+                        <div>
+                            <a href="{% url 'cart:remove_from_cart' item.pk %}" class="btn btn-outline-danger btn-sm rounded-circle p-2" title="Remove item" aria-label="Remove item">
+                                <i class="bi bi-trash3"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right: Order Summary Sticky Card with Transparent Price Breakdown -->
+            <div class="col-lg-4">
+                <div class="glass-panel p-4 sticky-top" style="top: 100px;">
+                    <h4 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-receipt text-warning"></i>Order Summary
+                    </h4>
+
+                    <!-- Transparent Price Breakdown -->
+                    <div class="d-flex justify-content-between text-secondary mb-2">
+                        <span>Items Total (MRP)</span>
+                        <span class="fw-semibold text-primary">{% format_price original_total %}</span>
+                    </div>
+
+                    {% if discount_savings > 0 %}
+                    <div class="d-flex justify-content-between text-success mb-2 fw-semibold">
+                        <span><i class="bi bi-tag-fill me-1"></i>Discount Savings</span>
+                        <span>-{% format_price discount_savings %}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between text-secondary mb-2">
+                        <span>Express Delivery</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between text-secondary mb-3">
+                        <span>Estimated Taxes & Fees</span>
+                        <span class="text-muted">Included</span>
+                    </div>
+
+                    <hr class="my-3 opacity-25" style="border-color: var(--glass-border);">
+
+                    <div class="d-flex justify-content-between align-items-baseline mb-4">
+                        <span class="fs-5 fw-bold">Final Amount</span>
+                        <span class="fs-3 fw-bolder text-accent">{% format_price total %}</span>
+                    </div>
+
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-accent btn-lg w-100 mb-2">
+                        <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+                    </a>
+
+                    <div class="text-center mt-3">
+                        <small class="text-muted d-flex align-items-center justify-content-center gap-1">
+                            <i class="bi bi-shield-lock-fill text-success"></i>Safe & Secure 256-Bit Checkout
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-glass-card">
+            <i class="bi bi-cart-x empty-icon text-muted"></i>
+            <h3 class="fw-bold">Your Cart is Waiting for Something Awesome</h3>
+            <p class="text-muted">Explore our curated collections, discover deals, and add your favorite items.</p>
+            <a href="{% url 'products:home' %}" class="btn btn-accent btn-lg px-5 mt-2">
+                <i class="bi bi-bag me-2"></i>Continue Shopping
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

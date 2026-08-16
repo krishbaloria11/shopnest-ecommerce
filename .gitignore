@@ -1,0 +1,75 @@
+# ======================================================
+# ShopNest Pro — Git Ignore Rules
+# ======================================================
+
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*
+!.env.example
+
+# Local SQLite Database & Storage
+db.sqlite3
+*.sqlite3
+*.db
+db.sqlite3-journal
+
+# Logs & Diagnostics
+*.log
+logs/
+*.pid
+
+# IDE and Editor Specific Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Static Collected Assets (Keep source in static/)
+staticfiles/
+static_root/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# OS-Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Media files uploaded in development (Keep .gitkeep in media/products/)
+media/*
+!media/products/
+media/products/*
+!media/products/.gitkeep

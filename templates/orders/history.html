@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+
+{% block title %}My Orders & History — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="section-header mb-4">
+            <div>
+                <h1 class="page-title mb-1">
+                    <i class="bi bi-box-seam text-warning me-2"></i>My Orders
+                </h1>
+                <p class="text-muted small mb-0">Track live shipments, view tax invoices, and manage eligible order cancellations.</p>
+            </div>
+            <a href="{% url 'products:home' %}" class="btn btn-outline-custom">
+                <i class="bi bi-bag me-1"></i>Explore Catalog
+            </a>
+        </div>
+
+        {% if orders %}
+        <div class="glass-panel overflow-hidden">
+            <div class="table-responsive">
+                <table class="glass-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date Placed</th>
+                            <th>Items</th>
+                            <th>Total Paid</th>
+                            <th>Discount Saved</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <strong class="text-primary fs-6">#{{ order.pk }}</strong>
+                                {% if order.transaction_id %}
+                                    <small class="text-muted d-block" style="font-size: 0.72rem;">Ref: {{ order.transaction_id }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="text-secondary">{{ order.created_at|date:"M d, Y" }}</span>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">{{ order.created_at|date:"g:i A" }}</small>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{{ order.item_count }} item{{ order.item_count|pluralize }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-accent fs-6">{% format_price order.total_amount %}</span>
+                            </td>
+                            <td>
+                                {% if order.discount_savings > 0 %}
+                                    <span class="text-success fw-bold small"><i class="bi bi-tag-fill me-1"></i>{% format_price order.discount_savings %}</span>
+                                {% else %}
+                                    <span class="text-muted small">&mdash;</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-pill {{ order.status }}">
+                                    {% if order.status == 'pending' %}<i class="bi bi-clock"></i>
+                                    {% elif order.status == 'confirmed' %}<i class="bi bi-check2-circle"></i>
+                                    {% elif order.status == 'processing' %}<i class="bi bi-gear"></i>
+                                    {% elif order.status == 'shipped' %}<i class="bi bi-truck"></i>
+                                    {% elif order.status == 'out_for_delivery' %}<i class="bi bi-geo-alt"></i>
+                                    {% elif order.status == 'delivered' %}<i class="bi bi-house-check"></i>
+                                    {% elif order.status == 'cancelled' %}<i class="bi bi-x-circle"></i>
+                                    {% else %}<i class="bi bi-info-circle"></i>{% endif %}
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2 align-items-center">
+                                    <a href="{% url 'orders:detail' order.pk %}" class="btn btn-glass btn-sm">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </a>
+
+                                    {% if order.can_be_cancelled %}
+                                        <button type="button" 
+                                                class="btn btn-danger-glass btn-sm cancel-order-trigger-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#cancelOrderModal{{ order.pk }}"
+                                                title="Cancel this order"
+                                                aria-haspopup="dialog">
+                                            <i class="bi bi-x-octagon me-1"></i>Cancel
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-glass-card">
+            <i class="bi bi-box-seam empty-icon text-muted"></i>
+            <h3 class="fw-bold">No Orders Placed Yet</h3>
+            <p class="text-muted">You haven't placed any orders yet. Discover our curated collections and start shopping today!</p>
+            <a href="{% url 'products:home' %}" class="btn btn-accent btn-lg px-4 mt-2">
+                <i class="bi bi-bag me-2"></i>Explore Catalog
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ========================================================================= -->
+<!-- Modals Rendered Outside of Tables and Panels at Template Root Level -->
+<!-- ========================================================================= -->
+{% if orders %}
+    {% for order in orders %}
+        {% if order.can_be_cancelled %}
+        <div class="modal fade text-start" id="cancelOrderModal{{ order.pk }}" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="cancelModalLabel{{ order.pk }}" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content glass-modal shadow-lg">
+                    <div class="modal-header pb-3">
+                        <h5 class="modal-title fw-bold text-danger d-flex align-items-center" id="cancelModalLabel{{ order.pk }}">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>Cancel Order #{{ order.pk }}?
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <p class="mb-3 text-secondary">Are you sure you want to cancel <strong>Order #{{ order.pk }}</strong> placed on <strong>{{ order.created_at|date:"F d, Y" }}</strong>?</p>
+                        
+                        <div class="glass-panel p-3 mb-3" style="background: var(--glass-input);">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Total Order Amount:</span>
+                                <strong class="text-accent">{% format_price order.total_amount %}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span class="text-muted">Payment Status:</span>
+                                <span class="text-info">{{ order.get_payment_status_display }}</span>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning small mb-0" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--status-pending); border-radius: 12px;">
+                            <i class="bi bi-info-circle-fill me-1"></i>
+                            All reserved item quantities (<strong>{{ order.item_count }} item{{ order.item_count|pluralize }}</strong>) will be immediately returned to inventory, and any demo authorization will be voided.
+                        </div>
+                    </div>
+                    <div class="modal-footer pt-3">
+                        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">
+                            <i class="bi bi-x-lg me-1"></i>Keep Order
+                        </button>
+                        <form method="POST" action="{% url 'orders:cancel' order.pk %}" class="d-inline cancel-order-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'orders:my_orders' %}">
+                            <button type="submit" class="btn btn-danger-glass confirm-cancel-btn">
+                                <i class="bi bi-x-circle me-1"></i>Confirm Cancellation
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endblock %}

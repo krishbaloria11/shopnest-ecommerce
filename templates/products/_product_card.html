@@ -1,0 +1,115 @@
+{% load currency_tags %}
+<!-- Reusable Ultra-Vibrant Glassmorphic Product Card Component -->
+<div class="product-card">
+    <div class="product-image-box">
+        <!-- Wishlist Floating Toggle Button -->
+        {% if user.is_authenticated %}
+            <button type="button" 
+                    class="wishlist-heart-btn wishlist-toggle-btn {% if product.id in user_wishlist_ids or is_wishlisted %}active{% endif %}" 
+                    data-url="{% url 'products:toggle_wishlist' product.pk %}" 
+                    title="Toggle Wishlist"
+                    aria-label="Wishlist">
+                <i class="bi {% if product.id in user_wishlist_ids or is_wishlisted %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+            </button>
+        {% else %}
+            <a href="{% url 'users:login' %}?next={{ request.path }}" class="wishlist-heart-btn" title="Login to save to Wishlist">
+                <i class="bi bi-heart"></i>
+            </a>
+        {% endif %}
+
+        <!-- Discount Percentage Ribbon -->
+        {% if product.discount_percent > 0 %}
+            <span class="product-badge-discount">
+                <i class="bi bi-lightning-charge-fill me-1"></i>-{{ product.discount_percent }}% OFF
+            </span>
+        {% endif %}
+
+        <!-- Product Image or Modern Placeholder -->
+        <a href="{% url 'products:product_detail' product.pk %}" class="d-block w-100 h-100">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+            {% else %}
+                <div class="product-placeholder">
+                    {% if product.category == 'electronics' %}<i class="bi bi-laptop"></i>
+                    {% elif product.category == 'gaming' %}<i class="bi bi-controller"></i>
+                    {% elif product.category == 'fashion' %}<i class="bi bi-handbag"></i>
+                    {% elif product.category == 'home' %}<i class="bi bi-house-door"></i>
+                    {% elif product.category == 'sports' %}<i class="bi bi-trophy"></i>
+                    {% elif product.category == 'books' %}<i class="bi bi-book"></i>
+                    {% elif product.category == 'beauty' %}<i class="bi bi-magic"></i>
+                    {% elif product.category == 'toys' %}<i class="bi bi-puzzle"></i>
+                    {% elif product.category == 'automotive' %}<i class="bi bi-tools"></i>
+                    {% elif product.category == 'grocery' %}<i class="bi bi-cup-hot"></i>
+                    {% elif product.category == 'stationery' %}<i class="bi bi-pen"></i>
+                    {% else %}<i class="bi bi-box-seam"></i>{% endif %}
+                </div>
+            {% endif %}
+        </a>
+
+        <!-- Out of Stock Overlay -->
+        {% if not product.in_stock %}
+            <div class="out-of-stock-mask">
+                <i class="bi bi-slash-circle me-1"></i>Sold Out
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="product-card-body">
+        <!-- Brand & Category Subtitle -->
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="product-brand-tag">{{ product.brand|default:product.get_category_display }}</span>
+            <small class="text-muted" style="font-size: 0.72rem;">{{ product.get_category_display }}</small>
+        </div>
+
+        <!-- Product Title -->
+        <h5 class="product-title">
+            <a href="{% url 'products:product_detail' product.pk %}" class="text-reset">
+                {{ product.name }}
+            </a>
+        </h5>
+
+        <!-- Product Snippet Description -->
+        <p class="product-card-desc">{{ product.description }}</p>
+
+        <!-- Star Rating -->
+        <div class="product-rating-bar">
+            {% for i in "12345" %}
+                {% if forloop.counter <= product.rating %}
+                    <i class="bi bi-star-fill text-warning"></i>
+                {% else %}
+                    <i class="bi bi-star text-muted opacity-50"></i>
+                {% endif %}
+            {% endfor %}
+            <span class="rating-score">{{ product.rating }}</span>
+        </div>
+
+        <!-- Transparent Pricing Block with Savings Tag -->
+        <div class="product-pricing-block">
+            <div class="d-flex align-items-baseline">
+                {% if product.discount_percent > 0 %}
+                    <span class="price-current">{% format_price product.discounted_price %}</span>
+                    <span class="price-original">{% format_price product.price %}</span>
+                {% else %}
+                    <span class="price-current">{% format_price product.price %}</span>
+                {% endif %}
+            </div>
+            {% if product.discount_percent > 0 %}
+                <div class="savings-tag">
+                    <i class="bi bi-tag-fill me-1"></i>Save {% format_price product.discount_amount %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Actions Row -->
+    <div class="product-card-actions">
+        <form method="POST" action="{% url 'cart:add_to_cart' product.pk %}" class="add-to-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" class="btn btn-accent w-100 add-cart-btn" {% if not product.in_stock %}disabled{% endif %}>
+                <i class="bi bi-cart-plus me-1"></i>
+                {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+            </button>
+        </form>
+    </div>
+</div>

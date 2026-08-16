@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+
+{% block title %}Secure Checkout — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <!-- Visual Multi-Step Stepper -->
+        <div class="checkout-stepper-bar max-w-600 mx-auto mb-5" style="max-width: 700px;">
+            <div class="checkout-step-node completed">
+                <div class="checkout-step-circle"><i class="bi bi-check-lg"></i></div>
+                <span class="checkout-step-label">1. Cart</span>
+            </div>
+            <div class="checkout-step-node active">
+                <div class="checkout-step-circle">2</div>
+                <span class="checkout-step-label">2. Address</span>
+            </div>
+            <div class="checkout-step-node active">
+                <div class="checkout-step-circle">3</div>
+                <span class="checkout-step-label">3. Delivery</span>
+            </div>
+            <div class="checkout-step-node active">
+                <div class="checkout-step-circle">4</div>
+                <span class="checkout-step-label">4. Payment</span>
+            </div>
+            <div class="checkout-step-node">
+                <div class="checkout-step-circle">5</div>
+                <span class="checkout-step-label">5. Confirm</span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Checkout Form (Address & Demo Payment Selection) -->
+            <div class="col-lg-7">
+                <form method="POST" action="{% url 'orders:checkout' %}" id="checkoutForm">
+                    {% csrf_token %}
+
+                    <!-- Card 1: Shipping & Delivery Information -->
+                    <div class="glass-panel p-4 p-md-5 mb-4">
+                        <h4 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                            <i class="bi bi-geo-alt text-warning"></i>Shipping & Delivery Address
+                        </h4>
+
+                        <div class="row g-3">
+                            <!-- Full Name -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold small text-secondary">Recipient Full Name *</label>
+                                {{ form.full_name }}
+                                {% for error in form.full_name.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-secondary">Email Address (Order Tracking) *</label>
+                                {{ form.email }}
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-secondary">Contact Phone Number *</label>
+                                {{ form.phone }}
+                                {% for error in form.phone.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Street Address -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold small text-secondary">Street Address / House / Flat No. *</label>
+                                {{ form.address }}
+                                {% for error in form.address.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- City -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-secondary">City / Town *</label>
+                                {{ form.city }}
+                                {% for error in form.city.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- State -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-secondary">State / Province *</label>
+                                {{ form.state }}
+                                {% for error in form.state.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Postal Code -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-secondary">PIN / Postal Code *</label>
+                                {{ form.zip_code }}
+                                {% for error in form.zip_code.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Demo Payment Method Selection -->
+                    <div class="glass-panel p-4 p-md-5 mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                                <i class="bi bi-credit-card-2-front text-primary"></i>Payment Method
+                            </h4>
+                            <span class="badge bg-info text-dark fw-bold">Demo Simulation</span>
+                        </div>
+                        <p class="text-muted small mb-4">Select your simulated payment option. No real transaction will be processed.</p>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="payment-method-card w-100">
+                                    <input type="radio" name="payment_method" value="card" checked>
+                                    <div>
+                                        <div class="fw-bold"><i class="bi bi-credit-card me-1 text-primary"></i>Credit / Debit Card</div>
+                                        <small class="text-muted">Instant demo authorization</small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="payment-method-card w-100">
+                                    <input type="radio" name="payment_method" value="upi">
+                                    <div>
+                                        <div class="fw-bold"><i class="bi bi-qr-code me-1 text-success"></i>Instant UPI / QR</div>
+                                        <small class="text-muted">Simulated QR approval</small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="payment-method-card w-100">
+                                    <input type="radio" name="payment_method" value="netbanking">
+                                    <div>
+                                        <div class="fw-bold"><i class="bi bi-bank me-1 text-warning"></i>Net Banking</div>
+                                        <small class="text-muted">Direct bank gateway simulation</small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="payment-method-card w-100">
+                                    <input type="radio" name="payment_method" value="cod">
+                                    <div>
+                                        <div class="fw-bold"><i class="bi bi-cash-stack me-1 text-accent"></i>Cash on Delivery</div>
+                                        <small class="text-muted">Pay upon simulated delivery</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-accent btn-lg w-100 py-3 mb-3">
+                        <i class="bi bi-shield-check me-2"></i>Place Demo Order ({% format_price total %})
+                    </button>
+                    <div class="text-center text-muted small">
+                        <i class="bi bi-lock-fill text-success me-1"></i>256-Bit SSL Demo Sandbox &bull; 7-Day Easy Return Guarantee
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right: Order Review & Transparent Pricing Breakdown -->
+            <div class="col-lg-5">
+                <div class="glass-panel p-4 sticky-top" style="top: 100px;">
+                    <h4 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-bag-check text-warning"></i>Order Review ({{ cart_items|length }} item{{ cart_items|length|pluralize }})
+                    </h4>
+
+                    <!-- Total Savings Callout Banner -->
+                    {% if discount_savings > 0 %}
+                    <div class="savings-callout mb-3">
+                        <i class="bi bi-tag-fill"></i>
+                        <div>
+                            <strong>Total Savings: {% format_price discount_savings %}</strong> applied!
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Items Scrollbox -->
+                    <div class="d-flex flex-column gap-3 mb-4" style="max-height: 260px; overflow-y: auto;">
+                        {% for item in cart_items %}
+                        <div class="d-flex align-items-center gap-3 pb-2 border-bottom" style="border-color: var(--glass-border) !important;">
+                            <div class="cart-thumb" style="width: 52px; height: 52px; border-radius: 10px;">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <i class="bi bi-box text-muted"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold text-truncate small" style="max-width: 170px;">{{ item.product.name }}</div>
+                                <div class="text-muted small">
+                                    Qty: {{ item.quantity }} &times; 
+                                    <span class="text-accent fw-bold">{% format_price item.product.discounted_price %}</span>
+                                    {% if item.product.discount_percent > 0 %}
+                                        <span class="text-decoration-line-through text-muted ms-1" style="font-size: 0.75rem;">{% format_price item.product.price %}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="fw-bold text-accent small">
+                                {% format_price item.subtotal %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Transparent Pricing Breakdown -->
+                    <div class="d-flex justify-content-between text-secondary mb-2">
+                        <span>Items Total (MRP)</span>
+                        <span class="fw-semibold text-primary">{% format_price original_total %}</span>
+                    </div>
+
+                    {% if discount_savings > 0 %}
+                    <div class="d-flex justify-content-between text-success mb-2 fw-semibold">
+                        <span><i class="bi bi-tag-fill me-1"></i>Discount Savings</span>
+                        <span>-{% format_price discount_savings %}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between text-secondary mb-2">
+                        <span>Express Delivery</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between text-secondary mb-3">
+                        <span>Estimated Taxes & Fees</span>
+                        <span class="text-muted">Included</span>
+                    </div>
+
+                    <hr class="my-3 opacity-25" style="border-color: var(--glass-border);">
+
+                    <div class="d-flex justify-content-between align-items-baseline">
+                        <span class="fs-5 fw-bold">Final Total</span>
+                        <span class="fs-3 fw-bolder text-accent">{% format_price total %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="auth-page-section">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Icon & Header Title -->
+            <div class="auth-header">
+                <div class="auth-icon-box">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join ShopNest Pro for curated deals, saved wishlists &amp; fast checkout</p>
+            </div>
+
+            <!-- Registration Form -->
+            <form method="POST" action="{% url 'users:register' %}" class="auth-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 px-3 small mb-3" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: var(--status-cancelled); border-radius: 12px;">
+                        {% for error in form.non_field_errors %}
+                            <div class="d-flex align-items-center"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Dynamic Form Fields Loop -->
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {% if 'username' in field.name %}
+                            <i class="bi bi-person text-primary"></i>
+                        {% elif 'email' in field.name %}
+                            <i class="bi bi-envelope text-primary"></i>
+                        {% elif 'password' in field.name %}
+                            <i class="bi bi-shield-lock text-primary"></i>
+                        {% else %}
+                            <i class="bi bi-pencil-square text-primary"></i>
+                        {% endif %}
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="form-text opacity-75">
+                            <i class="bi bi-info-circle me-1"></i>{{ field.help_text|safe }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <div class="field-error"><i class="bi bi-exclamation-circle-fill"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <!-- Submit Action -->
+                <button type="submit" class="btn btn-accent btn-lg w-100 mt-3 py-3">
+                    <i class="bi bi-person-check-fill me-2"></i>Create Account &amp; Get Started
+                </button>
+            </form>
+
+            <!-- Footer Navigation Link -->
+            <div class="auth-footer">
+                <span>Already have an account?</span>
+                <a href="{% url 'users:login' %}" class="ms-1">Sign In here &rarr;</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

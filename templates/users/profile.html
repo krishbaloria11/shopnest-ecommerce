@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load currency_tags %}
+
+{% block title %}My Profile Dashboard — ShopNest Pro{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="section-header mb-4">
+            <div>
+                <h1 class="page-title mb-1">
+                    <i class="bi bi-person-circle text-warning me-2"></i>My Dashboard
+                </h1>
+                <p class="text-muted small mb-0">Manage your profile, track active orders, and view saved items.</p>
+            </div>
+            <a href="{% url 'users:edit_profile' %}" class="btn btn-accent">
+                <i class="bi bi-pencil me-1"></i>Edit Profile
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: User Identity Card -->
+            <div class="col-lg-4">
+                <div class="glass-panel p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 84px; height: 84px; border-radius: 50%; background: var(--accent-gradient); color: #000; font-size: 2.2rem; font-weight: 800; box-shadow: 0 8px 25px var(--accent-glow);">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+
+                    <h4 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-secondary small mb-2">@{{ user.username }}</p>
+
+                    {% if user.email %}
+                        <p class="text-muted small mb-3"><i class="bi bi-envelope me-1"></i>{{ user.email }}</p>
+                    {% endif %}
+
+                    <span class="badge bg-secondary opacity-75 py-2 px-3 rounded-pill mb-3" style="font-size: 0.78rem;">
+                        <i class="bi bi-calendar-check me-1"></i>Member since {{ user.date_joined|date:"M Y" }}
+                    </span>
+
+                    <hr class="my-3 opacity-25" style="border-color: var(--glass-border);">
+
+                    <div class="d-flex flex-column gap-2 text-start">
+                        <a href="{% url 'orders:my_orders' %}" class="btn btn-glass w-100 justify-content-between">
+                            <span><i class="bi bi-box-seam text-info me-2"></i>My Orders</span>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
+                        <a href="{% url 'products:wishlist' %}" class="btn btn-glass w-100 justify-content-between">
+                            <span><i class="bi bi-heart text-danger me-2"></i>My Wishlist</span>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
+                        <a href="{% url 'cart:cart_view' %}" class="btn btn-glass w-100 justify-content-between">
+                            <span><i class="bi bi-cart3 text-warning me-2"></i>My Cart</span>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Stats & Recent Orders -->
+            <div class="col-lg-8">
+                <!-- 3 Glass Stats Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-4">
+                        <div class="glass-panel p-3 text-center">
+                            <div class="fw-bolder fs-2 text-accent">{{ order_count }}</div>
+                            <div class="small fw-semibold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Orders Placed</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="glass-panel p-3 text-center">
+                            <div class="fw-bolder fs-2 text-danger">{{ wishlist_count }}</div>
+                            <div class="small fw-semibold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Wishlist Items</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="glass-panel p-3 text-center">
+                            <div class="fw-bolder fs-2 text-warning">{{ cart_count }}</div>
+                            <div class="small fw-semibold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Cart Items</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders Panel -->
+                <div class="glass-panel p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-warning me-2"></i>Recent Orders</h5>
+                        {% if recent_orders %}
+                            <a href="{% url 'orders:my_orders' %}" class="small text-accent fw-semibold">View All →</a>
+                        {% endif %}
+                    </div>
+
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="glass-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td><strong class="text-primary">#{{ order.pk }}</strong></td>
+                                    <td><span class="text-secondary small">{{ order.created_at|date:"M d, Y" }}</span></td>
+                                    <td><span class="fw-bold text-accent">{% format_price order.total_amount %}</span></td>
+                                    <td><span class="status-pill {{ order.status }}">{{ order.get_status_display }}</span></td>
+                                    <td class="text-end">
+                                        <a href="{% url 'orders:detail' order.pk %}" class="btn btn-glass btn-sm">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-2">No orders placed yet.</p>
+                        <a href="{% url 'products:home' %}" class="btn btn-accent btn-sm">Explore Products</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
